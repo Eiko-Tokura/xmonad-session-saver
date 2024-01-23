@@ -7,6 +7,7 @@ This is a fork and rework of [xmonad-sessions](https://github.com/zaxtax/xmonad-
 
 Changes were made, and new functions were added, including:
 * Support for recording workspace, and launch documents only launch windows opened in this workspace. You can launch in separate workspaces.
+* When you launch documents, already existing windows will not be relaunched.
 * Support for recording the working directory where the command is launched.
 * Clean up the caches when you start up xmonad.
 
