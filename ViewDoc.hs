@@ -70,7 +70,8 @@ startUpCleanUp = do
         emptyList _  = const $ return ()
         cleanUp :: X ()
         cleanUp = io $ Str.readFile history >>= 
-          writeFile history . unlines . map show . filter saveStatus . mapMaybe readMaybe . lines . Str.unpack
+          writeFile history . unlines . map (show . clearUselessPIDInfo) . filter saveStatus . mapMaybe readMaybe . lines . Str.unpack
+        clearUselessPIDInfo (ProgramInfo wd cmd args _ mwsp flag) = ProgramInfo wd cmd args "" mwsp flag
 
 updateDoc :: (Bool -> Bool) -> Maybe String -> Maybe ProcessID -> X ()
 updateDoc fbool mwsp t = case t of
