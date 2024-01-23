@@ -104,7 +104,7 @@ setWindowBorder' c w = do
 
 colorSaved :: X ()
 colorSaved = do
-  withFocused   (giveColor savedColor) --withFocused (runQuery pid >=> colorSaved')
+  withFocused   (giveColor savedColor)
   withUnfocused (giveColor savedColorUnfocused)
   where giveColor color w = do
             mPID <- runQuery pid w
@@ -116,20 +116,21 @@ launchDocuments = do
   home <- io getHomeDirectory
   wsp <- getCurrentWorkspace
   f <- io $ Str.readFile (home </> history)
-  g <- mapM (launchFile (Just wsp)) (lines $ Str.unpack f)
+  allPIDs <- withWindowSet $ \ws -> map show . catMaybes <$> mapM (runQuery pid) (allWindows ws)
+  g <- mapM (launchFileExcept allPIDs (Just wsp)) (lines $ Str.unpack f)
   io $ setCurrentDirectory home
   io $ writeFile history (unlines g)
 
-launchFile :: Maybe String -> String -> X String
-launchFile mwsp "" = return ""
-launchFile mwsp f  = launchFile' mwsp (read f)
+launchFileExcept :: [String] -> Maybe String -> String -> X String
+launchFileExcept allPIDs mwsp "" = return ""
+launchFileExcept allPIDs mwsp f  = launchFile' mwsp (read f)
   where launchFile' :: Maybe String -> ProgramInfo -> X String
-        launchFile' mwsp l@(ProgramInfo wd cmd args _ wsp flag)
-            | flag && mwsp == wsp   = do 
-                pid <- io $ launch wd cmd args
-                colorWindows pid True
-                return $ show (ProgramInfo wd cmd args (show pid) mwsp flag)
-            | otherwise             = return $ show l
+        launchFile' mwsp l@(ProgramInfo wd cmd args opid wsp flag)
+            | flag && mwsp == wsp && opid `notElem` allPIDs = do 
+                    pid <- io $ launch wd cmd args
+                    colorWindows pid True
+                    return $ show (ProgramInfo wd cmd args (show pid) mwsp flag)
+            | otherwise                                     = return $ show l
 
 launch wd prog args = do
   setCurrentDirectory wd 
