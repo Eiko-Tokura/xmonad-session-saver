@@ -16,7 +16,7 @@ To use it,
 2. then edit the script install.sh, add all apps you want to record (remove the comment in the symbolic links section and add more apps by adding more lines). It works perfectly for zathura, not really working for nvim, nvim-qt. 
 ````bash
 #sudo ln -s /usr/local/bin/saveDocument /usr/local/bin/zathura
-````bash
+````
 3. Then run the script install.sh
 4. in your xmonad.hs, import the modules, add ewmh before xmonad, and add colorSaved in your logHook.
 ````haskell
@@ -25,7 +25,7 @@ import ViewDoc
 main = do
   xmonad . ewmh $ defaults
     { ...
-    , logHook = colorSaved <> refocusLastLogHook <> ...
+    , logHook = colorSaved <> ...
     } 
 ````
 5. Add key bindings for saving
